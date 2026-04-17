@@ -1,0 +1,627 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--red:#CC0000;--red-light:#FDECEA;--red-mid:#F09595}
+.wrap{padding:1rem 0;font-family:var(--font-sans)}
+.nav{display:flex;gap:0;margin-bottom:1.5rem;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden}
+.nav-btn{flex:1;padding:9px 8px;font-size:13px;font-weight:500;border:none;background:var(--color-background-primary);color:var(--color-text-secondary);cursor:pointer;border-right:0.5px solid var(--color-border-tertiary);transition:all .15s}
+.nav-btn:last-child{border-right:none}
+.nav-btn.active{background:#1A1A1A;color:#fff}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:1.5rem}
+.stat{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px 14px}
+.stat-l{font-size:12px;color:var(--color-text-secondary);margin-bottom:4px}
+.stat-v{font-size:22px;font-weight:500;color:var(--color-text-primary)}
+.stat-v.accent{color:var(--red)}
+.toolbar{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;align-items:center}
+.filter-btn{font-size:12px;padding:4px 12px;border:0.5px solid var(--color-border-tertiary);border-radius:12px;background:var(--color-background-primary);color:var(--color-text-secondary);cursor:pointer}
+.filter-btn.active{background:var(--color-background-secondary);border-color:var(--color-border-secondary);color:var(--color-text-primary)}
+.flex-gap{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+select{font-size:12px;padding:4px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-secondary)}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);margin-bottom:8px;overflow:hidden}
+.card:hover{border-color:var(--color-border-secondary)}
+.card-header{display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer}
+.card-name{font-size:14px;font-weight:500;color:var(--color-text-primary);flex:1;min-width:0}
+.pill{font-size:11px;font-weight:500;padding:2px 9px;border-radius:10px;white-space:nowrap}
+.ph1{background:#FDECEA;color:#991500}
+.ph2{background:#F0F0F0;color:#444}
+.ph3{background:#F5F5F5;color:#777}
+.status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dot-not{background:var(--color-border-secondary)}
+.dot-ip{background:#EF9F27}
+.dot-done{background:#639922}
+.dot-late{background:#E24B4A}
+.prog-wrap{min-width:100px;flex:1;max-width:140px}
+.prog-bg{height:4px;background:var(--color-background-secondary);border-radius:2px;overflow:hidden}
+.prog-fill{height:4px;border-radius:2px;background:var(--red);transition:width .4s}
+.prog-fill.done-fill{background:#639922}
+.prog-fill.late-fill{background:#E24B4A}
+.prog-pct{font-size:11px;color:var(--color-text-tertiary);margin-top:2px;text-align:right}
+.chevron{font-size:11px;color:var(--color-text-tertiary);transition:transform .2s;flex-shrink:0}
+.chevron.open{transform:rotate(180deg)}
+.card-body{border-top:0.5px solid var(--color-border-tertiary);display:none}
+.card-body.open{display:block}
+.tabs{display:flex;border-bottom:0.5px solid var(--color-border-tertiary)}
+.tab{padding:8px 14px;font-size:12px;color:var(--color-text-secondary);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.active{color:var(--red);border-bottom-color:var(--red);font-weight:500}
+.tab-panel{display:none;padding:12px 14px}
+.tab-panel.active{display:block}
+.task-row{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.task-row:last-child{border-bottom:none}
+.chk{width:15px;height:15px;border:0.5px solid var(--color-border-secondary);border-radius:3px;flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-top:2px}
+.chk.done{background:var(--red);border-color:var(--red)}
+.chk.done::after{content:'';display:block;width:7px;height:4px;border-left:1.5px solid #fff;border-bottom:1.5px solid #fff;transform:rotate(-45deg) translate(1px,-1px)}
+.task-main{flex:1;min-width:0}
+.task-text{font-size:13px;color:var(--color-text-secondary);line-height:1.4}
+.task-text.done{text-decoration:line-through;color:var(--color-text-tertiary)}
+.task-meta{display:flex;gap:8px;margin-top:4px;flex-wrap:wrap;align-items:center}
+.assignee-badge{font-size:11px;padding:2px 7px;border-radius:8px;background:var(--color-background-info);color:var(--color-text-info)}
+.due-badge{font-size:11px;padding:2px 7px;border-radius:8px}
+.due-ok{background:#EAF3DE;color:#27500A}
+.due-warn{background:#FAEEDA;color:#633806}
+.due-late{background:#FCEBEB;color:#791F1F}
+.assign-row{display:flex;gap:6px;align-items:center;margin-top:4px;flex-wrap:wrap}
+.assign-select{font-size:11px;padding:2px 6px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-primary);color:var(--color-text-secondary)}
+.date-input{font-size:11px;padding:2px 6px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-primary);color:var(--color-text-secondary)}
+.note-area{width:100%;font-size:12px;padding:8px 10px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);background:var(--color-background-secondary);color:var(--color-text-primary);font-family:var(--font-sans);resize:none;outline:none}
+.note-area:focus{border-color:var(--color-border-secondary)}
+.kpi-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.kpi-cell{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:9px 11px}
+.kpi-l{font-size:11px;color:var(--color-text-tertiary);margin-bottom:3px}
+.kpi-v{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.rev-bar{font-size:12px;padding:6px 10px;border-radius:var(--border-radius-md);background:#FDECEA;color:#991500;margin-bottom:12px}
+.member-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.member-row:last-child{border-bottom:none}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--color-background-info);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--color-text-info);flex-shrink:0}
+.member-name{font-size:13px;font-weight:500;color:var(--color-text-primary);flex:1}
+.member-tasks{font-size:12px;color:var(--color-text-secondary)}
+.perf-bar-bg{height:6px;background:var(--color-background-secondary);border-radius:3px;overflow:hidden;flex:1;max-width:120px}
+.perf-bar-fill{height:6px;border-radius:3px;background:#639922;transition:width .4s}
+.section-lbl{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.gantt-wrap{overflow-x:auto}
+.gantt-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.gantt-label{font-size:12px;color:var(--color-text-secondary);min-width:110px;max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gantt-track{flex:1;height:18px;background:var(--color-background-secondary);border-radius:3px;position:relative;min-width:200px}
+.gantt-bar{position:absolute;top:3px;height:12px;border-radius:2px;background:var(--red);opacity:.8}
+.gantt-bar.done-bar{background:#639922}
+.gantt-bar.late-bar{background:#E24B4A}
+.gantt-month{font-size:10px;color:var(--color-text-tertiary)}
+.add-member-row{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.add-member-row input{font-size:12px;padding:5px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);outline:none;flex:1;min-width:100px}
+.btn-sm{font-size:12px;padding:5px 12px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);cursor:pointer}
+.btn-sm:hover{background:var(--color-background-secondary)}
+.btn-red{background:var(--red);border-color:var(--red);color:#fff}
+.btn-red:hover{opacity:.88;background:var(--red)}
+.empty{font-size:13px;color:var(--color-text-tertiary);text-align:center;padding:2rem 0}
+.overdue-flag{font-size:11px;color:#791F1F;font-weight:500}
+</style>
+
+<div class="wrap">
+<h2 class="sr-only">TLV Network performance and work plan tracker with team assignment and timelines</h2>
+
+<div class="nav">
+  <button class="nav-btn active" onclick="showView('divisions',this)">Divisions</button>
+  <button class="nav-btn" onclick="showView('team',this)">Team</button>
+  <button class="nav-btn" onclick="showView('timeline',this)">Timeline</button>
+  <button class="nav-btn" onclick="showView('performance',this)">Performance</button>
+</div>
+
+<div class="stats" id="top-stats"></div>
+
+<div id="view-divisions">
+  <div class="toolbar">
+    <button class="filter-btn active" onclick="setDivFilter('all',this)">All</button>
+    <button class="filter-btn" onclick="setDivFilter('p1',this)">Phase 1</button>
+    <button class="filter-btn" onclick="setDivFilter('p2',this)">Phase 2</button>
+    <button class="filter-btn" onclick="setDivFilter('p3',this)">Phase 3</button>
+    <button class="filter-btn" onclick="setDivFilter('overdue',this)">Overdue</button>
+    <button class="filter-btn" onclick="setDivFilter('unassigned',this)">Unassigned</button>
+  </div>
+  <div id="div-cards"></div>
+</div>
+
+<div id="view-team" style="display:none">
+  <div class="section-lbl" style="margin-bottom:12px">Team members</div>
+  <div id="team-list"></div>
+  <div class="add-member-row">
+    <input id="new-member-name" placeholder="Full name" />
+    <input id="new-member-role" placeholder="Role" />
+    <button class="btn-sm btn-red" onclick="addMember()">+ Add member</button>
+  </div>
+  <div style="margin-top:1.5rem">
+    <div class="section-lbl">Workload overview</div>
+    <div id="workload-list"></div>
+  </div>
+</div>
+
+<div id="view-timeline" style="display:none">
+  <div class="section-lbl" style="margin-bottom:8px">12-month rollout — all divisions</div>
+  <div style="display:flex;gap:8px;margin-bottom:8px;padding-left:118px">
+    <span class="gantt-month" style="flex:1;text-align:center">M1–2</span>
+    <span class="gantt-month" style="flex:1;text-align:center">M3–4</span>
+    <span class="gantt-month" style="flex:1;text-align:center">M5–6</span>
+    <span class="gantt-month" style="flex:1;text-align:center">M7–8</span>
+    <span class="gantt-month" style="flex:1;text-align:center">M9–10</span>
+    <span class="gantt-month" style="flex:1;text-align:center">M11–12</span>
+  </div>
+  <div class="gantt-wrap" id="gantt-rows"></div>
+</div>
+
+<div id="view-performance" style="display:none">
+  <div class="section-lbl" style="margin-bottom:12px">Network-wide performance</div>
+  <div id="perf-content"></div>
+</div>
+</div>
+
+<script>
+const TEAM_KEY = 'tlv_team';
+const STATE_KEY = 'tlv_state';
+
+const divisions = [
+  {id:'pp',name:'Posse Party',focus:'Events',phase:'p1',
+   rev:'Event production fees + brand sponsorship',
+   kpi:['1 event/month','3 sponsors by M6','8 events/yr'],
+   gantt:[0,6],
+   tasks:[
+    {text:'Set event production rate card'},
+    {text:'Invoice for Wild House / Wild Room'},
+    {text:'Pitch 3 local brands for sponsorship'},
+    {text:'Build Posse Party social accounts'},
+    {text:'Establish event debrief and content capture process'},
+   ]},
+  {id:'tn',name:'Tie Nam',focus:'Music',phase:'p1',
+   rev:'Content deals + Mogik Records coverage',
+   kpi:['Weekly content live','2 label deals by M6','Coverage packages active'],
+   gantt:[0,6],
+   tasks:[
+    {text:'Package Mogik Records coverage as a sellable service'},
+    {text:'Pitch 2 independent labels for coverage deals'},
+    {text:'Build Tie Nam social accounts'},
+    {text:'Launch artist profile series'},
+    {text:'Create music news format'},
+   ]},
+  {id:'pos',name:'Possetivity',focus:'Humanity',phase:'p1',
+   rev:'Social virality → brand partnerships',
+   kpi:['1k followers by M3','10k by M6','First brand deal M4'],
+   gantt:[0,6],
+   tasks:[
+    {text:'Define Possetivity content format'},
+    {text:'Create content calendar'},
+    {text:'Build social accounts'},
+    {text:'Produce first 5 pieces'},
+    {text:'Reach 1,000 engaged followers'},
+   ]},
+  {id:'tk',name:'Tickle',focus:'Comedy',phase:'p1',
+   rev:'Sponsored content + talent bookings',
+   kpi:['Weekly comedy content','1 brand sponsor M5','Talent roster built'],
+   gantt:[0,6],
+   tasks:[
+    {text:'Define Tickle content format'},
+    {text:'Build comedian roster'},
+    {text:'Build social accounts'},
+    {text:'Produce first comedy content'},
+    {text:'First brand sponsorship pitch'},
+   ]},
+  {id:'mm',name:'Metromind',focus:'Money',phase:'p2',
+   rev:'Sponsored finance content + ShiLeengi rollout',
+   kpi:['Weekly show/podcast','2 fintech sponsors M6','ShiLeengi live'],
+   gantt:[3,8],
+   tasks:[
+    {text:'Launch weekly finance format'},
+    {text:'Pitch fintech and business brands'},
+    {text:'Begin ShiLeengi ledger management'},
+    {text:'Build Metromind social accounts'},
+    {text:'Produce first 4 episodes'},
+   ]},
+  {id:'aa',name:'Acquired Acumen',focus:'Expertise',phase:'p2',
+   rev:'Paid masterclasses + brand collaborations',
+   kpi:['Monthly expert interview','First paid event M5','4 experts secured'],
+   gantt:[3,8],
+   tasks:[
+    {text:'Build expert interview format'},
+    {text:'Book first 4 expert guests'},
+    {text:'Plan first paid masterclass'},
+    {text:'Build social accounts'},
+    {text:'Produce pilot episode'},
+   ]},
+  {id:'ms',name:'Misuli',focus:'Fitness',phase:'p2',
+   rev:'Brand partnerships + sponsored programming',
+   kpi:['2x content/week','1 fitness brand M5','Trainer partnership live'],
+   gantt:[3,8],
+   tasks:[
+    {text:'Partner with local gym or trainer'},
+    {text:'Build Misuli content format'},
+    {text:'Pitch fitness and sportswear brands'},
+    {text:'Build social accounts'},
+    {text:'Launch training series'},
+   ]},
+  {id:'sd',name:'Slurps Different',focus:'Food',phase:'p2',
+   rev:'Restaurant/brand sponsorships + events',
+   kpi:['Weekly food content','2 restaurant deals M6','Food event M7'],
+   gantt:[3,8],
+   tasks:[
+    {text:'Define food content format'},
+    {text:'Build restaurant and chef contact list'},
+    {text:'Pitch food brands for sponsorship'},
+    {text:'Build social accounts'},
+    {text:'Produce first food showcase episode'},
+   ]},
+  {id:'pk',name:'Pickney',focus:'Kids',phase:'p2',
+   rev:'Educational brand partnerships',
+   kpi:['Parenting content live M4','2 brand deals M6','Kids content M8'],
+   gantt:[3,8],
+   tasks:[
+    {text:'Launch parenting subdivision first'},
+    {text:'Build content format for parents'},
+    {text:'Pitch educational and family brands'},
+    {text:'Build social accounts'},
+    {text:'Develop kids content roadmap'},
+   ]},
+  {id:'sp',name:'TLV Sports',focus:'Sports',phase:'p3',
+   rev:'Athlete content deals + sports brand sponsors',
+   kpi:['2 athlete profiles M8','1 sports brand M9','10 profiles by M12'],
+   gantt:[6,12],
+   tasks:[
+    {text:'Define athlete documentary format'},
+    {text:'Build sports brand contact list'},
+    {text:'Identify first 5 African athletes to profile'},
+    {text:'Build social accounts'},
+    {text:'Launch pilot episode'},
+   ]},
+  {id:'fa',name:'TLV Fashion',focus:'Fashion',phase:'p3',
+   rev:'Designer partnerships + event coverage deals',
+   kpi:['Designer profiles M8','Cover 1 fashion event M9','3 brand deals M12'],
+   gantt:[6,12],
+   tasks:[
+    {text:'Define fashion content format'},
+    {text:'Map East African fashion week calendar'},
+    {text:'Pitch designer partnerships'},
+    {text:'Build social accounts'},
+    {text:'Produce first designer profile'},
+   ]},
+  {id:'po2',name:'TLV Politics',focus:'Politics',phase:'p3',
+   rev:'Institutional partnerships + civic sponsors',
+   kpi:['Governance content M9','Editorial policy written','2 institutional deals M12'],
+   gantt:[6,12],
+   tasks:[
+    {text:'Write political neutrality editorial policy'},
+    {text:'Define content format'},
+    {text:'Build social accounts'},
+    {text:'Identify first governance stories'},
+    {text:'Pitch NGO and civic partnerships'},
+   ]},
+  {id:'re',name:'TLV Religion',focus:'Spirituality',phase:'p3',
+   rev:'Community partnerships + event programming',
+   kpi:['Interfaith series M10','3 faith communities M12','First event M11'],
+   gantt:[6,12],
+   tasks:[
+    {text:'Define interfaith documentary format'},
+    {text:'Build faith community contact list'},
+    {text:'Build social accounts'},
+    {text:'Produce pilot episode'},
+    {text:'Plan first faith event'},
+   ]},
+  {id:'ng',name:'TLV Nat Geo',focus:'Wildlife/Travel',phase:'p3',
+   rev:'Tourism board deals + documentary licensing',
+   kpi:['Travel series M10','1 tourism deal M11','First doc complete M12'],
+   gantt:[6,12],
+   tasks:[
+    {text:'Define travel and wildlife content format'},
+    {text:'Identify first 3 locations to cover'},
+    {text:'Pitch tourism boards and conservation orgs'},
+    {text:'Build social accounts'},
+    {text:'Produce first travel episode'},
+   ]},
+];
+
+let state = {};
+let team = [{name:'Leegion',role:'Network Director',initials:'LE'},{name:'TBC',role:'Content Lead',initials:'CL'},{name:'TBC',role:'Social Media',initials:'SM'},{name:'TBC',role:'Videographer',initials:'VG'}];
+let openCards = {};
+let activeCardTab = {};
+let divFilter = 'all';
+let currentView = 'divisions';
+
+function init() {
+  divisions.forEach(d=>{
+    state[d.id]={tasks:d.tasks.map(()=>({done:false,assignee:'',due:''})),note:'',files:[]};
+  });
+  renderAll();
+}
+
+function initials(name){return name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2)}
+
+function showView(v,btn){
+  currentView=v;
+  ['divisions','team','timeline','performance'].forEach(n=>{
+    document.getElementById('view-'+n).style.display=n===v?'block':'none';
+  });
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderAll();
+}
+
+function setDivFilter(f,btn){
+  divFilter=f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderDivisions();
+}
+
+function progress(id){
+  const t=state[id].tasks;
+  const done=t.filter(x=>x.done).length;
+  return t.length?Math.round(done/t.length*100):0;
+}
+
+function isOverdue(id){
+  const today=new Date();
+  return state[id].tasks.some(t=>!t.done&&t.due&&new Date(t.due)<today);
+}
+
+function hasUnassigned(id){
+  return state[id].tasks.some(t=>!t.done&&!t.assignee);
+}
+
+function dueClass(due,done){
+  if(!due) return '';
+  const today=new Date();
+  const d=new Date(due);
+  const diff=(d-today)/(1000*60*60*24);
+  if(done) return 'due-ok';
+  if(diff<0) return 'due-late';
+  if(diff<7) return 'due-warn';
+  return 'due-ok';
+}
+
+function dueLabel(due,done){
+  if(!due) return '';
+  const today=new Date();
+  const d=new Date(due);
+  const diff=Math.round((d-today)/(1000*60*60*24));
+  if(done) return 'Done';
+  if(diff<0) return `${Math.abs(diff)}d overdue`;
+  if(diff===0) return 'Due today';
+  return `${diff}d left`;
+}
+
+function statusDot(id){
+  const p=progress(id);
+  if(p===100) return 'dot-done';
+  if(isOverdue(id)) return 'dot-late';
+  if(p>0) return 'dot-ip';
+  return 'dot-not';
+}
+
+function progFillClass(id){
+  const p=progress(id);
+  if(p===100) return 'done-fill';
+  if(isOverdue(id)) return 'late-fill';
+  return '';
+}
+
+function renderAll(){
+  renderStats();
+  if(currentView==='divisions') renderDivisions();
+  if(currentView==='team') renderTeam();
+  if(currentView==='timeline') renderTimeline();
+  if(currentView==='performance') renderPerformance();
+}
+
+function renderStats(){
+  let total=divisions.length,inprog=0,done=0,overdue=0,unassigned=0;
+  divisions.forEach(d=>{
+    const p=progress(d.id);
+    if(p===100) done++;
+    else if(p>0) inprog++;
+    if(isOverdue(d.id)) overdue++;
+    if(hasUnassigned(d.id)) unassigned++;
+  });
+  document.getElementById('top-stats').innerHTML=`
+    <div class="stat"><div class="stat-l">Divisions</div><div class="stat-v">${total}</div></div>
+    <div class="stat"><div class="stat-l">In progress</div><div class="stat-v accent">${inprog}</div></div>
+    <div class="stat"><div class="stat-l">Overdue tasks</div><div class="stat-v" style="color:${overdue?'#E24B4A':'var(--color-text-primary)'}">${overdue}</div></div>
+    <div class="stat"><div class="stat-l">Unassigned</div><div class="stat-v" style="color:${unassigned?'#BA7517':'var(--color-text-primary)'}">${unassigned}</div></div>
+  `;
+}
+
+function renderDivisions(){
+  const filtered=divisions.filter(d=>{
+    if(divFilter==='all') return true;
+    if(divFilter==='overdue') return isOverdue(d.id);
+    if(divFilter==='unassigned') return hasUnassigned(d.id);
+    return d.phase===divFilter;
+  });
+  const phLabel={p1:'Phase 1',p2:'Phase 2',p3:'Phase 3'};
+  document.getElementById('div-cards').innerHTML=filtered.map(d=>{
+    const p=progress(d.id);
+    const s=state[d.id];
+    const isOpen=!!openCards[d.id];
+    const tab=activeCardTab[d.id]||'tasks';
+    const teamOptions=`<option value="">Unassigned</option>${team.map(m=>`<option value="${m.name}">${m.name}</option>`).join('')}`;
+    const tasksHtml=d.tasks.map((t,i)=>{
+      const ts=s.tasks[i];
+      const dc=dueClass(ts.due,ts.done);
+      const dl=dueLabel(ts.due,ts.done);
+      return `<div class="task-row">
+        <div class="chk${ts.done?' done':''}" onclick="toggleTask('${d.id}',${i})"></div>
+        <div class="task-main">
+          <div class="task-text${ts.done?' done':''}">${t.text}</div>
+          <div class="task-meta">
+            <select class="assign-select" onchange="setAssignee('${d.id}',${i},this.value)">
+              ${teamOptions.replace(`value="${ts.assignee}"`,`value="${ts.assignee}" selected`)}
+            </select>
+            ${ts.assignee?`<span class="assignee-badge">${ts.assignee}</span>`:''}
+            <input type="date" class="date-input" value="${ts.due||''}" onchange="setDue('${d.id}',${i},this.value)">
+            ${dl?`<span class="due-badge ${dc}">${dl}</span>`:''}
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+    return `<div class="card" id="card-${d.id}">
+      <div class="card-header" onclick="toggleCard('${d.id}')">
+        <div class="status-dot ${statusDot(d.id)}"></div>
+        <div class="card-name">${d.name} <span style="font-size:11px;color:var(--color-text-tertiary);font-weight:400">${d.focus}</span></div>
+        <div class="pill ${d.phase}">${phLabel[d.phase]}</div>
+        <div class="prog-wrap">
+          <div class="prog-bg"><div class="prog-fill ${progFillClass(d.id)}" style="width:${p}%"></div></div>
+          <div class="prog-pct">${p}%</div>
+        </div>
+        <div class="chevron${isOpen?' open':''}">▾</div>
+      </div>
+      <div class="card-body${isOpen?' open':''}">
+        <div class="tabs">
+          <div class="tab${tab==='tasks'?' active':''}" onclick="setCardTab('${d.id}','tasks')">Tasks</div>
+          <div class="tab${tab==='info'?' active':''}" onclick="setCardTab('${d.id}','info')">Info</div>
+          <div class="tab${tab==='notes'?' active':''}" onclick="setCardTab('${d.id}','notes')">Notes</div>
+        </div>
+        <div class="tab-panel${tab==='tasks'?' active':''}">
+          ${tasksHtml}
+        </div>
+        <div class="tab-panel${tab==='info'?' active':''}">
+          <div class="kpi-grid">${d.kpi.map((k,i)=>`<div class="kpi-cell"><div class="kpi-l">Target ${i+1}</div><div class="kpi-v">${k}</div></div>`).join('')}</div>
+          <div class="rev-bar">Revenue path: ${d.rev}</div>
+        </div>
+        <div class="tab-panel${tab==='notes'?' active':''}">
+          <textarea class="note-area" rows="3" placeholder="Notes, links, updates..." oninput="saveNote('${d.id}',this.value)">${s.note}</textarea>
+        </div>
+      </div>
+    </div>`;
+  }).join('') || '<div class="empty">No divisions match this filter</div>';
+}
+
+function renderTeam(){
+  const workload={};
+  team.forEach(m=>{workload[m.name]={total:0,done:0}});
+  divisions.forEach(d=>{
+    state[d.id].tasks.forEach(t=>{
+      if(t.assignee&&workload[t.assignee]){
+        workload[t.assignee].total++;
+        if(t.done) workload[t.assignee].done++;
+      }
+    });
+  });
+  document.getElementById('team-list').innerHTML=team.map((m,i)=>`
+    <div class="member-row">
+      <div class="avatar">${initials(m.name)}</div>
+      <div style="flex:1">
+        <div class="member-name">${m.name}</div>
+        <div style="font-size:12px;color:var(--color-text-secondary)">${m.role}</div>
+      </div>
+      <div class="member-tasks">${workload[m.name]?workload[m.name].total:0} tasks</div>
+      <button class="btn-sm" style="font-size:11px;padding:3px 8px;color:var(--color-text-danger);border-color:var(--color-border-danger)" onclick="removeMember(${i})">Remove</button>
+    </div>
+  `).join('') || '<div class="empty">No team members yet</div>';
+
+  document.getElementById('workload-list').innerHTML=team.map(m=>{
+    const w=workload[m.name]||{total:0,done:0};
+    const pct=w.total?Math.round(w.done/w.total*100):0;
+    return `<div class="member-row">
+      <div class="avatar">${initials(m.name)}</div>
+      <div class="member-name">${m.name}</div>
+      <div style="font-size:12px;color:var(--color-text-secondary);min-width:80px">${w.done}/${w.total} done</div>
+      <div class="perf-bar-bg"><div class="perf-bar-fill" style="width:${pct}%"></div></div>
+      <div style="font-size:12px;color:var(--color-text-secondary);min-width:32px;text-align:right">${pct}%</div>
+    </div>`;
+  }).join('') || '<div class="empty">Add team members to see workload</div>';
+}
+
+function renderTimeline(){
+  const slots=12;
+  document.getElementById('gantt-rows').innerHTML=divisions.map(d=>{
+    const [start,end]=d.gantt;
+    const p=progress(d.id);
+    const late=isOverdue(d.id);
+    const left=Math.round(start/slots*100);
+    const width=Math.round((end-start)/slots*100);
+    const barClass=p===100?'done-bar':late?'late-bar':'';
+    return `<div class="gantt-row">
+      <div class="gantt-label" title="${d.name}">${d.name}</div>
+      <div class="gantt-track">
+        <div class="gantt-bar ${barClass}" style="left:${left}%;width:${width}%;opacity:${p>0?1:.45}"></div>
+      </div>
+      <div style="font-size:11px;color:var(--color-text-tertiary);min-width:32px;text-align:right">${p}%</div>
+    </div>`;
+  }).join('');
+}
+
+function renderPerformance(){
+  let totalTasks=0,doneTasks=0,assigned=0,withDue=0,overdueTasks=0;
+  const byMember={};
+  divisions.forEach(d=>{
+    state[d.id].tasks.forEach(t=>{
+      totalTasks++;
+      if(t.done) doneTasks++;
+      if(t.assignee) assigned++;
+      if(t.due) withDue++;
+      if(!t.done&&t.due&&new Date(t.due)<new Date()) overdueTasks++;
+      if(t.assignee){
+        if(!byMember[t.assignee]) byMember[t.assignee]={total:0,done:0,overdue:0};
+        byMember[t.assignee].total++;
+        if(t.done) byMember[t.assignee].done++;
+        if(!t.done&&t.due&&new Date(t.due)<new Date()) byMember[t.assignee].overdue++;
+      }
+    });
+  });
+  const overallPct=totalTasks?Math.round(doneTasks/totalTasks*100):0;
+  document.getElementById('perf-content').innerHTML=`
+    <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:1.5rem">
+      <div class="stat"><div class="stat-l">Overall progress</div><div class="stat-v">${overallPct}%</div></div>
+      <div class="stat"><div class="stat-l">Tasks completed</div><div class="stat-v accent">${doneTasks}/${totalTasks}</div></div>
+      <div class="stat"><div class="stat-l">Assigned tasks</div><div class="stat-v">${assigned}</div></div>
+      <div class="stat"><div class="stat-l">Overdue tasks</div><div class="stat-v" style="color:${overdueTasks?'#E24B4A':'var(--color-text-primary)'}">${overdueTasks}</div></div>
+    </div>
+    <div class="section-lbl">Division completion</div>
+    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:1.5rem">
+      ${divisions.map(d=>{
+        const p=progress(d.id);
+        const late=isOverdue(d.id);
+        return `<div style="display:flex;align-items:center;gap:10px">
+          <div style="font-size:12px;color:var(--color-text-secondary);min-width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${d.name}</div>
+          <div class="prog-bg" style="flex:1;max-width:none;height:6px">
+            <div class="prog-fill ${p===100?'done-fill':late?'late-fill':''}" style="width:${p}%;height:6px"></div>
+          </div>
+          <div style="font-size:12px;color:var(--color-text-secondary);min-width:36px;text-align:right">${p}%</div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div class="section-lbl">Individual performance</div>
+    <div>
+      ${Object.keys(byMember).length?Object.entries(byMember).map(([name,w])=>{
+        const pct=w.total?Math.round(w.done/w.total*100):0;
+        return `<div class="member-row">
+          <div class="avatar">${initials(name)}</div>
+          <div style="flex:1">
+            <div class="member-name">${name}</div>
+            <div style="font-size:12px;color:var(--color-text-secondary)">${w.done}/${w.total} tasks · ${w.overdue} overdue</div>
+          </div>
+          <div class="perf-bar-bg" style="max-width:160px"><div class="perf-bar-fill" style="width:${pct}%"></div></div>
+          <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);min-width:36px;text-align:right">${pct}%</div>
+        </div>`;
+      }).join(''):'<div class="empty">Assign tasks to team members to see individual performance</div>'}
+    </div>
+  `;
+}
+
+function toggleCard(id){openCards[id]=!openCards[id];if(!activeCardTab[id])activeCardTab[id]='tasks';renderDivisions();}
+function setCardTab(id,tab){activeCardTab[id]=tab;renderDivisions();}
+function toggleTask(id,i){state[id].tasks[i].done=!state[id].tasks[i].done;renderAll();}
+function setAssignee(id,i,val){state[id].tasks[i].assignee=val;renderAll();}
+function setDue(id,i,val){state[id].tasks[i].due=val;renderAll();}
+function saveNote(id,val){state[id].note=val;}
+function addMember(){
+  const n=document.getElementById('new-member-name').value.trim();
+  const r=document.getElementById('new-member-role').value.trim();
+  if(!n) return;
+  team.push({name:n,role:r||'Team member',initials:initials(n)});
+  document.getElementById('new-member-name').value='';
+  document.getElementById('new-member-role').value='';
+  renderTeam();
+}
+function removeMember(i){
+  const name=team[i].name;
+  team.splice(i,1);
+  divisions.forEach(d=>{state[d.id].tasks.forEach(t=>{if(t.assignee===name)t.assignee='';});});
+  renderAll();
+}
+
+init();
+</script>
